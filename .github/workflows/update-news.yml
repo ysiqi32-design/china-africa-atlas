@@ -11,7 +11,7 @@ concurrency:
 jobs:
   discover:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 18
     steps:
       - uses: actions/checkout@v4
         with:
@@ -22,7 +22,9 @@ jobs:
       - name: Install requests
         run: python -m pip install requests
       - name: Discover headlines and links (not verified facts)
-        run: python scripts/update_news.py --days 14 --maxrecords 35
+        id: discover
+        continue-on-error: true
+        run: python scripts/update_news.py --days 30 --maxrecords 35 --batch-size 4
       - name: Build static data snapshot
         run: python scripts/build_bundle.py
       - name: Commit news metadata if changed
@@ -35,3 +37,8 @@ jobs:
             git pull --rebase origin main
             git push origin HEAD:main
           fi
+      - name: Report API failure after preserving saved progress
+        if: steps.discover.outcome == 'failure'
+        run: |
+          echo 'GDELT requests failed or were rate limited. Progress was preserved; check news.json and wait for the next scheduled batch.' >&2
+          exit 1

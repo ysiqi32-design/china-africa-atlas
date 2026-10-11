@@ -8,7 +8,7 @@ Never replace an existing country dataset when its request fails.
 Offline tests:
  python scripts/update_news.py --fixture tests/fixtures/gdelt_sample.json --countries GIN,SEN --no-sleep
 Live:
- python scripts/update_news.py --days 14
+ python scripts/update_news.py --days 30 --batch-size 4
 """
 import argparse
 import hashlib
@@ -65,6 +65,22 @@ TOPIC_PATTERNS={
  'external':r'\b(france|united states|european union|russia|turkey|india|japan|français|européen)\b',
 }
 TRACKING_PREFIXES=('utm_','fbclid','gclid','mc_')
+
+class RateLimitError(RuntimeError):
+    """Remote service refused more requests: pause this job instead of retrying 54 times."""
+
+
+def select_batch(countries, country_status, batch_size):
+    """Select least recently successful countries, preferring those never completed.
+
+    Failed country attempts are recorded, so the same 429 target does not block
+    all other countries on successive days. No country is permanently skipped.
+    """
+    def rank(iso):
+        state=country_status.get(iso) or {}
+        return (state.get('last_success_at_utc') or '', state.get('checked_at_utc') or '', iso)
+    return sorted(countries,key=rank)[:batch_size]
+
 
 
 def safe_url(raw):
@@ -130,25 +146,32 @@ def parse_articles(payload,iso,now_iso):
     return sorted(results,key=lambda x:x['detected_at_utc'],reverse=True)
 
 
-def fetch_country(session,iso,days,maxrecords,retries=3):
+def fetch_country(session,iso,days,maxrecords,retries=2):
     params={'query':query_for(iso),'mode':'artlist','format':'json',
             'timespan':f'{days}d','maxrecords':maxrecords,'sort':'datedesc'}
     last=None
     for n in range(retries):
         try:
-            res=session.get('https://api.gdeltproject.org/api/v2/doc/doc',params=params,timeout=40,
-                    headers={'User-Agent':'ChinaAfricaResearchAtlas/4.0 (research article discovery)'})
-            if res.status_code in (429,500,502,503,504):raise RuntimeError('retryable HTTP '+str(res.status_code))
+            res=session.get('https://api.gdeltproject.org/api/v2/doc/doc',params=params,timeout=28,
+                    headers={'User-Agent':'ChinaAfricaResearchAtlas/4.1 (academic research news-index discovery)'})
+            # Do NOT automatically retry HTTP 429: it means our GitHub-hosted
+            # collector is hitting a remote quota. Stop this job's batch.
+            if res.status_code==429:
+                retry_after=res.headers.get('Retry-After','')
+                raise RateLimitError('HTTP 429: GDELT rate limit' + (f' (Retry-After {retry_after})' if retry_after else ''))
+            if res.status_code in (500,502,503,504):
+                raise RuntimeError('temporary HTTP '+str(res.status_code))
             res.raise_for_status()
             payload=res.json()
             if isinstance(payload,dict) and (payload.get('error') or payload.get('errors')):
                 raise ValueError(str(payload.get('error') or payload.get('errors'))[:200])
             return payload
+        except RateLimitError:
+            raise
         except (requests.RequestException, ValueError, RuntimeError) as exc:
             last=exc
-            if n+1<retries:time.sleep(4*(n+1)+random.random())
+            if n+1<retries:time.sleep(7*(n+1)+random.random())
     raise RuntimeError(str(last))
-
 
 def combine(old,new,now_iso,retention_days,max_per_country=45):
     threshold=datetime.fromisoformat(now_iso.replace('Z','+00:00'))-timedelta(days=retention_days)
@@ -166,15 +189,15 @@ def combine(old,new,now_iso,retention_days,max_per_country=45):
     return sorted(valid,key=lambda x:x['detected_at_utc'],reverse=True)[:max_per_country]
 
 
-def refresh(target,countries,days,maxrecords,retention_days,fixtures=None,sleep_seconds=1.6):
+def refresh(target,countries,days,maxrecords,retention_days,fixtures=None,sleep_seconds=25):
     prior=json.loads(target.read_text(encoding='utf8')) if target.exists() else {}
     now=datetime.now(timezone.utc).isoformat().replace('+00:00','Z')
     db=dict(prior)
     items=dict(prior.get('countries') or {})
     country_status=dict(prior.get('country_status') or {})
-    failures={};success=[]
+    failures={};success=[];rate_limited=False
     with requests.Session() as sess:
-        for iso in countries:
+        for i,iso in enumerate(countries):
             try:
                 payload=(fixtures[iso] if fixtures is not None else fetch_country(sess,iso,days,maxrecords))
                 new=parse_articles(payload,iso,now)
@@ -182,44 +205,65 @@ def refresh(target,countries,days,maxrecords,retention_days,fixtures=None,sleep_
                 country_status[iso]={'checked_at_utc':now,'last_success_at_utc':now,
                                      'matched_recently':len(new),'stored_records':len(items[iso]),'status':'ok'}
                 success.append(iso)
-                print(f'[{len(success)+len(failures)}/{len(countries)}] {iso}: {len(new)} leads',flush=True)
+                print(f'[{i+1}/{len(countries)}] {iso}: {len(new)} leads',flush=True)
             except Exception as exc:
                 failures[iso]=str(exc)[:240]
                 old=country_status.get(iso,{})
                 country_status[iso]={**old,'checked_at_utc':now,'status':'fetch_failed',
                                      'error':failures[iso], 'stored_records':len(items.get(iso,[]))}
-                print(f'[{len(success)+len(failures)}/{len(countries)}] {iso}: FAILED {str(exc)[:120]}',file=sys.stderr,flush=True)
-            if fixtures is None and sleep_seconds:time.sleep(sleep_seconds)
-    # Never destroy last good output when the entire remote service fails.
-    if not success:
-        print('No successful country queries: prior verified snapshot retained',file=sys.stderr)
-        return 2
+                print(f'[{i+1}/{len(countries)}] {iso}: FAILED {str(exc)[:120]}',file=sys.stderr,flush=True)
+                if isinstance(exc,RateLimitError):
+                    rate_limited=True
+                    print('GDELT rate limited this runner. Stopping this batch immediately; '
+                          'unqueried countries will be scheduled in future runs.',file=sys.stderr,flush=True)
+                    break
+            # No unnecessary sleep after final query or when the server forbids more.
+            if fixtures is None and sleep_seconds and i+1<len(countries):
+                time.sleep(sleep_seconds)
+    prior_success=prior.get('last_success_at_utc')
     db.update({'schema_version':1,'dataset':'africa_china_news_discovery','provider':'GDELT DOC 2.0 / Article List',
                'provider_url':'https://api.gdeltproject.org/api/v2/doc/doc',
-               'checked_at_utc':now,'last_success_at_utc':now,'lookback_days':days,'retention_days':retention_days,
-               'status':'partial' if failures else 'ok','country_status':country_status,'countries':items,'errors':failures,
-               'methodology':'Automated GDELT article-metadata search by country and China terms. Matches and topic tags do not verify claims. Detection date may differ from article publication. Only title, link, domain, language and dates are stored.',
-               'notice':'所有自动搜集内容均为待核验线索，非已核实事实；请阅读原文、核查事件日期并交叉验证。'})
+               'checked_at_utc':now,'last_success_at_utc':now if success else prior_success,
+               'lookback_days':days,'retention_days':retention_days,
+               'status':'rate_limited' if rate_limited else ('partial' if failures else 'ok'),
+               'country_status':country_status,'countries':items,'errors':failures,
+               'batch_attempted':len(success)+len(failures),'batch_success':len(success),
+               'batch_total':len(countries),
+               'methodology':'Daily rotating country batches; GDELT metadata discovery; detected date is not publication date. Keyword matches are not verified facts.',
+               'notice':'仅供选题发现。429限流时立即停止当次批次，并保留已成功数据及检查失败状态。'})
+    # Even a failed batch is saved to preserve scheduling progress and old news.
+    # The GitHub Actions workflow marks the job failed AFTER committing this checkpoint.
     target.write_text(json.dumps(db,ensure_ascii=False,indent=2)+'\n',encoding='utf8')
-    print('Saved',target,'updated countries',len(success),'errors',len(failures),'articles',sum(map(len,items.values())))
+    print('Saved checkpoint',target,'batch',len(success),'success',len(failures),'errors',
+          'overall stored leads',sum(map(len,items.values())),flush=True)
+    if not success:
+        print('No successful country queries; old news records preserved; job will report failure.',file=sys.stderr)
+        return 2
     return 0
-
 
 def main():
     parser=argparse.ArgumentParser()
     parser.add_argument('--countries',help='ISO3 list comma-separated; default all 54')
-    parser.add_argument('--days',type=int,default=14)
+    parser.add_argument('--days',type=int,default=30)
+    parser.add_argument('--batch-size',type=int,default=4,help='Maximum number of countries per daily run')
     parser.add_argument('--maxrecords',type=int,default=35)
     parser.add_argument('--retention-days',type=int,default=90)
     parser.add_argument('--fixture',help='JSON dictionary of ISO3 -> GDELT API fixture response')
     parser.add_argument('--no-sleep',action='store_true')
     parser.add_argument('--output',type=pathlib.Path,default=TARGET)
     args=parser.parse_args()
-    if not 1<=args.days<=90 or not 1<=args.maxrecords<=200 or not 14<=args.retention_days<=365:
+    if not 1<=args.days<=90 or not 1<=args.maxrecords<=200 or not 14<=args.retention_days<=365 or not 1<=args.batch_size<=12:
         parser.error('Invalid days / records / retention limits')
     selected=(args.countries.split(',') if args.countries else list(NAMES))
     if not selected or any(x not in NAMES for x in selected):parser.error('Unknown ISO3 country')
     fixtures=json.loads(pathlib.Path(args.fixture).read_text(encoding='utf8')) if args.fixture else None
-    return refresh(args.output,selected,args.days,args.maxrecords,args.retention_days,fixtures,0 if args.no_sleep else 1.6)
+    if fixtures is None:
+        if args.output.exists():
+            try: status=(json.loads(args.output.read_text(encoding='utf8')).get('country_status') or {})
+            except (OSError,ValueError):status={}
+        else:status={}
+        selected=select_batch(selected,status,args.batch_size)
+    print(f'Country batch: {", ".join(selected)}; {len(selected)} of {len(NAMES)} countries; lookback {args.days} days',flush=True)
+    return refresh(args.output,selected,args.days,args.maxrecords,args.retention_days,fixtures,0 if args.no_sleep else 25)
 
 if __name__=='__main__':sys.exit(main())
