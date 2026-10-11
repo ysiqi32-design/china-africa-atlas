@@ -1,11 +1,11 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "dataset": "africa_china_news_discovery",
-  "provider": "GDELT DOC 2.0 / Article List",
-  "provider_url": "https://api.gdeltproject.org/api/v2/doc/doc",
-  "status": "rate_limited",
-  "checked_at_utc": "2026-10-11T12:01:56.520808Z",
-  "last_success_at_utc": null,
+  "provider": "AllAfrica country RSS feeds",
+  "provider_url": "https://allafrica.com/misc/tools/rss.html",
+  "status": "ok",
+  "checked_at_utc": "2026-10-11T12:19:56.416122Z",
+  "last_success_at_utc": "2026-10-11T12:19:56.416122Z",
   "lookback_days": 30,
   "country_status": {
     "AGO": {
@@ -13,16 +13,26 @@
       "status": "fetch_failed",
       "error": "HTTP 429: GDELT rate limit",
       "stored_records": 0
+    },
+    "SEN": {
+      "checked_at_utc": "2026-10-11T12:19:56.416122Z",
+      "last_success_at_utc": "2026-10-11T12:19:56.416122Z",
+      "status": "ok",
+      "matched_recently": 0,
+      "stored_records": 0,
+      "feeds_succeeded": 2,
+      "feeds_expected": 2,
+      "error": null
     }
   },
-  "countries": {},
-  "errors": {
-    "AGO": "HTTP 429: GDELT rate limit"
+  "countries": {
+    "SEN": []
   },
-  "methodology": "Daily rotating country batches; GDELT metadata discovery; detected date is not publication date. Keyword matches are not verified facts.",
-  "notice": "仅供选题发现。429限流时立即停止当次批次，并保留已成功数据及检查失败状态。",
+  "errors": {},
+  "methodology": "Daily rotating country batches from English and French AllAfrica RSS feeds. Headlines and source links are discovery leads; keyword matches are not verified facts. RSS category coverage can vary by country and publisher.",
+  "notice": "新闻标题依 AllAfrica RSS 条款标注并链接原文；仅供研究发现，所有线索待核验。各国时间表示最近一次成功读取该国英/法 RSS 分类源。",
   "retention_days": 90,
   "batch_attempted": 1,
-  "batch_success": 0,
-  "batch_total": 4
+  "batch_success": 1,
+  "batch_total": 1
 }
