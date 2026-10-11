@@ -6,6 +6,7 @@ on:
       - 'index.html'
       - 'style.css'
       - 'app.js'
+      - 'upload.js'
       - 'data/**'
       - '.github/workflows/deploy-pages.yml'
   workflow_dispatch:
@@ -28,7 +29,7 @@ jobs:
       - name: Prepare static site
         run: |
           mkdir -p _site/data
-          cp index.html style.css app.js _site/
+          cp index.html style.css app.js upload.js _site/
           cp data/*.json data/bundle.js _site/data/
           touch _site/.nojekyll
       - uses: actions/upload-pages-artifact@v3
