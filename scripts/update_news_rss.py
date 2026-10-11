@@ -217,7 +217,7 @@ def refresh(target, selected, all_codes, batch_size, fixture=None, delay=8):
                 **(statuses.get(iso) or {}), 'checked_at_utc': now,
                 'last_success_at_utc': now, 'status': status,
                 'matched_recently': len(rows), 'stored_records': len(items[iso]),
-                'feeds_succeeded': language_ok, 'feeds_expected': 2,
+                'feeds_succeeded': language_ok, 'feeds_expected': 2,\n                'error': '; '.join(language_errors) if language_errors else None,
             }
             successful.append(iso)
             print(f'[{index}/{len(selected)}] {iso}: {len(rows)} China-related leads; {language_ok}/2 feeds', flush=True)
