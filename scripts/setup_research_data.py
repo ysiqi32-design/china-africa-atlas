@@ -1,0 +1,22 @@
+#!/usr/bin/env python3
+"""Create verified seed research records and normalized empty datasets; safe to re-run."""
+import json,pathlib
+from datetime import datetime,timezone
+ROOT=pathlib.Path(__file__).resolve().parents[1]
+OUT=ROOT/'data'
+def save(filename,blob):
+    path=OUT/filename
+    if not path.exists():path.write_text(json.dumps(blob,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+BASE={'schema_version':2,'updated_at_utc':None,'countries':{},'status':'not_yet_imported','note':'暂无批量核验数据；空值代表未入库而非数值为零。'}
+for name in ['investment','financing','engineering','resources','industry','payments','security','multilateral','society','surveys','external','diplomacy']:
+    save(name+'.json',dict(BASE,dataset=name))
+save('trade.json',dict(BASE,dataset='bilateral_trade_china_reporter',source='UN Comtrade',source_url='https://comtradeplus.un.org/',measure='China-reported exports to partner (X) and imports from partner (M), USD; not partner country reported trade',coverage_note='UN Comtrade 公开预览接口可能限流。只有明确返回的伙伴国数值才入库。'))
+save('records.json',{'schema_version':2,'updated_at_utc':'2026-10-11T00:00:00Z','record_kind':'Verified curated research leads; not continuously updated news','records':[
+ {'id':'MLI-GOU-2024','country':'MLI','modules':['investment','resources','industry','projects','financing'],'type':'project','date':'2024-05-16','title':'Goulamina锂矿合作协议调整','summary':'马里财政部及矿业部宣布根据2023年矿业法重新谈判Goulamina项目，马里国家及本国资本参与比例由20%调整至35%。这是项目股权安排，不等于收入份额。','verification':'official_document','source_name':'马里财政部/矿业部联合公告','source_url':'https://mines.gouv.ml/signature-de-laccord-sur-le-projet-de-lithium-de-goulamina-et-la-mine-de-morila','observed_at':'2026-10-11'},
+ {'id':'GIN-SIM-2025','country':'GIN','modules':['projects','resources','investment','industry'],'type':'project','date':'2025-11-11','title':'西芒杜铁矿综合项目启动运营','summary':'力拓与项目合作伙伴公布西芒杜项目运营启动仪式，包含跨几内亚铁路与港口设施；设计目标产能不代表现有实际产量。','verification':'company_announcement','source_name':'Rio Tinto，2025-11-11','source_url':'https://www.riotinto.com/en/news/releases/2025/simandou-partners-celebrate-start-of-operations','observed_at':'2026-10-11'},
+ {'id':'COD-COB-2025','country':'COD','modules':['resources','trade','industry','external'],'type':'policy','date':'2025-09-20','title':'刚果（金）建立钴出口配额制度','summary':'ARECOMS公告将钴出口禁令延续至10月中旬，随后转为配额。国际能源署政策库列示2026年全年配额为96,600吨；应跟踪实际执行和修订情况。','verification':'institutional_policy_summary','source_name':'IEA Policies，2026-05-28核定','source_url':'https://www.iea.org/policies/29138-drc-arecoms-decision-no-0042025-cobalt-quota-system','observed_at':'2026-10-11'},
+ {'id':'NER-CNPC-2025','country':'NER','modules':['investment','resources','security','opinion','diplomacy'],'type':'event','date':'2025-03-20','title':'尼日尔与中国石油企业发生劳资治理争议','summary':'路透社报道，尼日尔要求三名中国石油相关企业高管离境；石油部长将措施与尼日尔员工待遇和岗位分配问题联系起来。此为有来源的报道，不等于法院裁定。','verification':'news_report','source_name':'Reuters，2025-03-20','source_url':'https://www.reuters.com/business/energy/niger-expelled-chinese-oil-execs-over-local-expatriate-pay-gap-minister-says-2025-03-20/','observed_at':'2026-10-11'},
+ {'id':'SEN-2050-2024','country':'SEN','modules':['diplomacy','industry','financing','external'],'type':'policy','date':'2024-10-14','title':'塞内加尔2050国家发展与转型战略','summary':'塞内加尔政府将经济、金融、能源和数字自主以及产业升级纳入长期政策规划。政策目标不代表各项目已实际完成。','verification':'official_document','source_name':'塞内加尔经济计划与合作部','source_url':'https://economie.gouv.sn/en/rapports-publications','observed_at':'2026-10-11'},
+ {'id':'SEN-BASE-2025','country':'SEN','modules':['diplomacy','security','external'],'type':'event','date':'2025-07-17','title':'塞内加尔接收法国最后一批永久军事设施','summary':'法国结束在塞内加尔的永久驻军。此为对法关系重构背景事件，不属于对华投资或贸易数据。','verification':'news_report','source_name':'Reuters，2025-07-17','source_url':'https://www.reuters.com/world/africa/france-ends-permanent-troop-presence-senegal-2025-07-17/','observed_at':'2026-10-11'}
+]})
+if __name__=='__main__':print('Initialized / preserved normalized data files in',OUT)

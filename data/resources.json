@@ -1,0 +1,8 @@
+{
+  "schema_version": 2,
+  "updated_at_utc": null,
+  "countries": {},
+  "status": "not_yet_imported",
+  "note": "暂无批量核验数据；空值代表未入库而非数值为零。",
+  "dataset": "resources"
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "updated_at_utc": null,
+  "countries": {},
+  "status": "not_yet_imported",
+  "note": "暂无批量核验数据；空值代表未入库而非数值为零。",
+  "dataset": "bilateral_trade_china_reporter",
+  "source": "UN Comtrade",
+  "source_url": "https://comtradeplus.un.org/",
+  "measure": "China-reported exports to partner (X) and imports from partner (M), USD; not partner country reported trade",
+  "coverage_note": "UN Comtrade 公开预览接口可能限流。只有明确返回的伙伴国数值才入库。"
+}

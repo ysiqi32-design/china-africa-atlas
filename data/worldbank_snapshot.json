@@ -1,0 +1,1 @@
+{"source":"World Bank World Development Indicators API v2","source_url":"https://api.worldbank.org/v2/","refreshed_at_utc":null,"note":"Unpopulated starter snapshot. Run the GitHub Actions workflow to fetch authoritative values. The web app fetches up-to-date published data live on selection.","countries":{}}
