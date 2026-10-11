@@ -9,20 +9,19 @@
 
 ### 数据来源和频率
 
-- 公开 [GDELT DOC 2.0 Article List API](https://blog.gdeltproject.org/gdelt-doc-2-0-api-debuts/) 用于**新闻报道元数据发现**，通过国名与 China/Chinese/Chine/chinois 关键词组合搜索54国。该服务索引不同网站，**不保证覆盖所有媒体、政府公告或全部新事件**；搜索命中更不证明双边关系存在或新闻内容属实。
-- `.github/workflows/update-news.yml` 每天 05:43 UTC （北京时间13:43、日本时间14:43）**尝试**查询 GDELT 的最近14天索引。每国保留最近90天内最多45条线索。GitHub Actions 运行可能延误或失败。
-- 前端「国别最新动态」显示标题、媒体域名、GDELT**发现日期**、原始报道链接、机器粗分类。**发现日期不等于新闻发布日。**只保存元数据，不全文转载；所有自动入库新闻为「待核验线索」。
-- 「指定新闻机构」筛选可查 Reuters、France24、Jeune Afrique 等**已被GDELT抓到**的线索；不意味着已经订阅这些媒体的全部新闻，也不意味着直接抓取了它们的全文。政府和研究机构官方来源链接仍在14维度下供核查。
-- 看到有价值线索可点击「加入核验清单」，或「忽略此线索」。决定仅保存于当前浏览器Local Storage；「数据管理中心 → 导出完整备份」一并包含核验清单。可在新闻面板导出待核验清单CSV。
-- 新闻发现记录不会自动变成已核验政策事件。核验时应读原始文章，查阅政府及企业一手材料，确认事件发生/报道日期、各方说法，再手动提交记录。
+- 新闻主索引改用 [AllAfrica 官方 RSS](https://allafrica.com/misc/tools/rss.html)：按 AllAfrica 的国别分类读取英文和法文 RSS，筛选标题或摘要中提及 China/Chinese/Chine/chinois 的条目。AllAfrica 官方说明其内容来自90多个非洲新闻机构及自有记者，并允许网站展示标题，但要求注明并链接 AllAfrica 或所用 feed 页面。
+- `.github/workflows/update-news.yml` 每天 05:43 UTC（北京时间13:43）最多轮换4国；英、法 RSS 均尝试读取，约14天完成一轮。每国保留最近90天内最多45条线索。GitHub Actions 运行可能延误或失败，RSS 分类覆盖也会因国家和来源而异。
+- GDELT 在 GitHub Actions 上连续触发 429 后不再作为主采集源；其旧版采集脚本保留作诊断用途。新闻数据写入失败国家状态后再生成 bundle 和提交，写文件采用原子替换，单国失败不覆盖已保存线索。
+- 前端显示标题、RSS日期、来源域名、文章链接、所属国家和机器粗分类。只保存元数据，不存全文；所有自动入库新闻均为「待核验线索」。RSS 日期由来源提供，不保证等于实际事件发生时间。
+- 「资料类型」筛选可查媒体线索；政府和研究机构官方来源仍在14个研究维度下供交叉核查。点击「加入核验清单」或「忽略此线索」的决定保存在当前浏览器；新闻面板可导出待核验清单 CSV。
+- 新闻发现不会自动变成已核验政策事件。核验时应打开原始文章，查阅政府及企业一手材料，确认报道日期、各方说法，再手动提交记录。
 
-首次启用：仓库 **Actions** 运行 `Discover Africa–China news leads` → **Run workflow**。成功后查看 `data/news.json` 的 `checked_at_utc`、`country_status`、`errors`；如果是空的或仍标记 `not_yet_fetched`，则不能对外宣称已自动发现新闻。GitHub Pages 发布后点击新闻区「↻ 读取最新快照」可获得最新发布的数据文件。
+首次运行后查看 `data/news.json` 的 `checked_at_utc`、`country_status` 和 `errors`。各国状态单独记录最近检查时间、最近成功时间和来源错误；每次部分成功都会保留成功国家的数据。GitHub Pages 发布后点击新闻区「↻ 读取最新快照」可刷新页面快照。
 
-本地离线试验（模拟数据不会自动发布到网站）：
+本地离线测试：
 
 ```bash
-python -m unittest discover -s tests -p 'test_*.py'
-python scripts/update_news.py --fixture tests/fixtures/gdelt_sample.json --countries GIN,SEN --output /tmp/atlas-news-test.json --no-sleep
+python -m unittest discover -s tests -p 'test_update_news_rss.py'
 ```
 
 ## 0. 新增：手动上传与完整本地备份（A方案）
@@ -186,8 +185,6 @@ python scripts/build_bundle.py
 **重要隐私说明**：本仓库当前为公开仓库。不要提交研究私密笔记、访问令牌、个人信息等。浏览器的本地研究笔记保存在浏览器 Local Storage 中，不随项目上传。
 
 
-## GDELT 429 限流修复（2026-10）
+## 新闻采集源调整（2026-10）
 
-第一轮全量54国请求触发GDELT HTTP 429限流。新闻采集现改为**每天最多4国的轮换批次**，国家按上次成功/尝试的时间排序，优先处理尚未成功的国家；每个请求之间间隔25秒。遇到429时立即暂停本批次，不再反复重试。任务每日运行，**每个国家不是每天更新**：如果均能成功，54国约需14天完成一轮；若持续限流则更久。每次搜索最近30天的报道索引，以覆盖较长轮换周期。
-
-任务无成功结果时，`data/news.json` 仍写入本次错误状态但保留旧新闻线索，GitHub Actions 会在保存状态之后标记该次运行失败；因此红色并不意味着旧数据被删除。GDELT对云端IP可能有额外限制，此机制降低风险但**无法保证GDELT一定允许请求**，且不构成连续实时新闻服务。
+初次 GDELT 运行在第49国附近被 GitHub Actions 取消，未到保存步骤；之后的限流修复成功保存了检查状态，但新运行仍在首个国家收到 HTTP 429，故网站没有新闻记录。为避免把平台限流误判为前端问题，主采集已切换到 AllAfrica 的公开英、法文国别 RSS；每日只轮换少数国家，两个语言源至少有一个成功时就保存该国结果。每次任务先运行离线解析测试，随后以原子方式写入 JSON。某国源失败时保留该国旧记录，提交可用国家的进度并在工作流末尾报告失败状态。
