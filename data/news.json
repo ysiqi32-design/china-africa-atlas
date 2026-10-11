@@ -3,13 +3,26 @@
   "dataset": "africa_china_news_discovery",
   "provider": "GDELT DOC 2.0 / Article List",
   "provider_url": "https://api.gdeltproject.org/api/v2/doc/doc",
-  "status": "not_yet_fetched",
-  "checked_at_utc": null,
+  "status": "rate_limited",
+  "checked_at_utc": "2026-10-11T12:01:56.520808Z",
   "last_success_at_utc": null,
-  "lookback_days": 14,
-  "country_status": {},
+  "lookback_days": 30,
+  "country_status": {
+    "AGO": {
+      "checked_at_utc": "2026-10-11T12:01:56.520808Z",
+      "status": "fetch_failed",
+      "error": "HTTP 429: GDELT rate limit",
+      "stored_records": 0
+    }
+  },
   "countries": {},
-  "errors": {},
-  "methodology": "Automated headline metadata discovery using China and country name search. Matching does not verify the event or prove China-country bilateral relevance. Retains headlines, source domains, first-seen date, GDELT detection date and external links only. Article bodies not stored.",
-  "notice": "平台内容仅供选题发现，均为待核验线索；原始文件和多方确认后才能写入已核验项目档案。"
+  "errors": {
+    "AGO": "HTTP 429: GDELT rate limit"
+  },
+  "methodology": "Daily rotating country batches; GDELT metadata discovery; detected date is not publication date. Keyword matches are not verified facts.",
+  "notice": "仅供选题发现。429限流时立即停止当次批次，并保留已成功数据及检查失败状态。",
+  "retention_days": 90,
+  "batch_attempted": 1,
+  "batch_success": 0,
+  "batch_total": 4
 }
