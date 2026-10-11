@@ -11,6 +11,10 @@ on:
       - 'data/**'
       - '.github/workflows/deploy-pages.yml'
   workflow_dispatch:
+  workflow_run:
+    workflows: ["Discover Africa–China news leads"]
+    types: [completed]
+    branches: [main]
 permissions:
   contents: read
   pages: write
