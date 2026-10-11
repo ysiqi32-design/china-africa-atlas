@@ -217,7 +217,8 @@ def refresh(target, selected, all_codes, batch_size, fixture=None, delay=8):
                 **(statuses.get(iso) or {}), 'checked_at_utc': now,
                 'last_success_at_utc': now, 'status': status,
                 'matched_recently': len(rows), 'stored_records': len(items[iso]),
-                'feeds_succeeded': language_ok, 'feeds_expected': 2,\n                'error': '; '.join(language_errors) if language_errors else None,
+                'feeds_succeeded': language_ok, 'feeds_expected': 2,
+                'error': '; '.join(language_errors) if language_errors else None,
             }
             successful.append(iso)
             print(f'[{index}/{len(selected)}] {iso}: {len(rows)} China-related leads; {language_ok}/2 feeds', flush=True)
@@ -256,6 +257,7 @@ def refresh(target, selected, all_codes, batch_size, fixture=None, delay=8):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--batch-size', type=int, default=4)
+    parser.add_argument('--country', choices=sorted(COUNTRIES), help='Refresh exactly one ISO3 country (useful for validation)')
     parser.add_argument('--delay', type=int, default=8)
     parser.add_argument('--fixture', help='JSON object containing ISO3 -> en/fr RSS XML strings')
     parser.add_argument('--output', type=pathlib.Path, default=TARGET)
@@ -265,7 +267,7 @@ def main():
     all_codes = list(COUNTRIES)
     prior = json.loads(args.output.read_text(encoding='utf-8')) if args.output.exists() else {}
     state = prior.get('country_status') or {}
-    selected = all_codes if args.fixture else select_batch(all_codes, state, args.batch_size)
+    selected = all_codes if args.fixture else ([args.country] if args.country else select_batch(all_codes, state, args.batch_size))
     fixture = json.loads(pathlib.Path(args.fixture).read_text(encoding='utf-8')) if args.fixture else None
     print(f"Country batch: {', '.join(selected)}; {len(selected)} of {len(all_codes)} countries", flush=True)
     return refresh(args.output, selected, all_codes, args.batch_size, fixture, args.delay)
