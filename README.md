@@ -1,9 +1,29 @@
-# 非洲研究图谱 v3（本地手动上传版） | China–Africa Research Atlas
+# 非洲研究图谱 v4（新闻动态与本地上传版） | China–Africa Research Atlas
 
 > 一套可在本地或静态网站运行的 54 国交互式研究图谱：**14 个研究维度**、世界银行指标、UN Comtrade 贸易更新程序、已核验项目与政策线索、来源链接、国别比较及本地笔记。
 >
 > **当前完成程度**：功能模块与数据接口已经实现；世界银行数据支持浏览器在线查询和 GitHub Actions 快照；UN Comtrade 贸易提供周期更新脚本，部署执行后才显示返回的可用数据；投资、债务、民调等专题数据文件已创建但大部分尚未导入。网页**不虚构未取得的数据**。
 
+
+## V4：国别最新动态每日自动发现（待核验）
+
+### 数据来源和频率
+
+- 公开 [GDELT DOC 2.0 Article List API](https://blog.gdeltproject.org/gdelt-doc-2-0-api-debuts/) 用于**新闻报道元数据发现**，通过国名与 China/Chinese/Chine/chinois 关键词组合搜索54国。该服务索引不同网站，**不保证覆盖所有媒体、政府公告或全部新事件**；搜索命中更不证明双边关系存在或新闻内容属实。
+- `.github/workflows/update-news.yml` 每天 05:43 UTC （北京时间13:43、日本时间14:43）**尝试**查询 GDELT 的最近14天索引。每国保留最近90天内最多45条线索。GitHub Actions 运行可能延误或失败。
+- 前端「国别最新动态」显示标题、媒体域名、GDELT**发现日期**、原始报道链接、机器粗分类。**发现日期不等于新闻发布日。**只保存元数据，不全文转载；所有自动入库新闻为「待核验线索」。
+- 「指定新闻机构」筛选可查 Reuters、France24、Jeune Afrique 等**已被GDELT抓到**的线索；不意味着已经订阅这些媒体的全部新闻，也不意味着直接抓取了它们的全文。政府和研究机构官方来源链接仍在14维度下供核查。
+- 看到有价值线索可点击「加入核验清单」，或「忽略此线索」。决定仅保存于当前浏览器Local Storage；「数据管理中心 → 导出完整备份」一并包含核验清单。可在新闻面板导出待核验清单CSV。
+- 新闻发现记录不会自动变成已核验政策事件。核验时应读原始文章，查阅政府及企业一手材料，确认事件发生/报道日期、各方说法，再手动提交记录。
+
+首次启用：仓库 **Actions** 运行 `Discover Africa–China news leads` → **Run workflow**。成功后查看 `data/news.json` 的 `checked_at_utc`、`country_status`、`errors`；如果是空的或仍标记 `not_yet_fetched`，则不能对外宣称已自动发现新闻。GitHub Pages 发布后点击新闻区「↻ 读取最新快照」可获得最新发布的数据文件。
+
+本地离线试验（模拟数据不会自动发布到网站）：
+
+```bash
+python -m unittest discover -s tests -p 'test_*.py'
+python scripts/update_news.py --fixture tests/fixtures/gdelt_sample.json --countries GIN,SEN --output /tmp/atlas-news-test.json --no-sleep
+```
 
 ## 0. 新增：手动上传与完整本地备份（A方案）
 
@@ -36,7 +56,7 @@ SEN,diplomacy,外交政策文件示例,2025-01-01,仅演示字段,示例报告,h
 
 ## 1. 怎样启动
 
-- **最容易**：双击 `非洲研究图谱_v2_可直接打开.html` 单文件版。地图、已有核验资料、资料源和手动上传功能在本地可用；但 file:// 方式的浏览器数据存储可能因浏览器安全策略不可用，建议使用 GitHub Pages 或 localhost。世界银行指标需要浏览器联网访问原始 API。
+- **最容易**：双击 `非洲研究图谱_V4_可直接打开.html` 单文件版。地图、已有核验资料、资料源和手动上传功能在本地可用；但 file:// 方式的浏览器数据存储可能因浏览器安全策略不可用，建议使用 GitHub Pages 或 localhost。世界银行指标需要浏览器联网访问原始 API。
 - **完整项目**：项目根目录可运行 `python -m http.server 8000`，浏览器打开 `http://localhost:8000`。也可以将整个文件夹发布到 GitHub Pages、Cloudflare Pages 或 Netlify。
 - 项目部署后，每周可用 GitHub Actions 检查数据更新。单文件离线版不会自动接收 Actions 生成的数据，下载更新后的单文件才能同步快照。
 
@@ -123,7 +143,7 @@ python scripts/build_bundle.py
 
 `.github/workflows/update-data.yml` 每周读取 WDI 和 UN Comtrade 数据，重新生成 `data/bundle.js`。GitHub Actions 定时执行会受到平台排队/失败、API访问限制影响，因此更新属于**周期检查**，不是实时流式数据。
 
-个人笔记使用浏览器的 `localStorage`，不能在不同设备自动同步。网站公开发布后，网页本身是公开访问的，不适合存储私人或敏感研究资料；需要私密账号时应独立加入认证及私有数据库。
+研究笔记与新闻核验清单使用浏览器的 `localStorage`，不能在不同设备自动同步。网站公开发布后，网页本身是公开访问的，不适合存储私人或敏感研究资料；需要私密账号时应独立加入认证及私有数据库。
 
 ## 7. 目录
 

@@ -5,6 +5,9 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
+concurrency:
+  group: atlas-dataset-writes
+  cancel-in-progress: false
 jobs:
   refresh:
     runs-on: ubuntu-latest
@@ -30,4 +33,8 @@ jobs:
           git config user.name 'atlas-data-bot'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add data/*.json data/bundle.js
-          git diff --cached --quiet || (git commit -m "data: refresh published source snapshots" && git push)
+          if ! git diff --cached --quiet; then
+            git commit -m "data: refresh published source snapshots"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi

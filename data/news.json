@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "dataset": "africa_china_news_discovery",
+  "provider": "GDELT DOC 2.0 / Article List",
+  "provider_url": "https://api.gdeltproject.org/api/v2/doc/doc",
+  "status": "not_yet_fetched",
+  "checked_at_utc": null,
+  "last_success_at_utc": null,
+  "lookback_days": 14,
+  "country_status": {},
+  "countries": {},
+  "errors": {},
+  "methodology": "Automated headline metadata discovery using China and country name search. Matching does not verify the event or prove China-country bilateral relevance. Retains headlines, source domains, first-seen date, GDELT detection date and external links only. Article bodies not stored.",
+  "notice": "平台内容仅供选题发现，均为待核验线索；原始文件和多方确认后才能写入已核验项目档案。"
+}

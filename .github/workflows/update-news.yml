@@ -1,0 +1,37 @@
+name: Discover Africa–China news leads
+on:
+  schedule:
+    - cron: '43 5 * * *' # 05:43 UTC daily; source metadata not verified facts
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: atlas-dataset-writes
+  cancel-in-progress: false
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install requests
+        run: python -m pip install requests
+      - name: Discover headlines and links (not verified facts)
+        run: python scripts/update_news.py --days 14 --maxrecords 35
+      - name: Build static data snapshot
+        run: python scripts/build_bundle.py
+      - name: Commit news metadata if changed
+        run: |
+          git config user.name 'atlas-data-bot'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add data/news.json data/bundle.js
+          if ! git diff --cached --quiet; then
+            git commit -m 'data: refresh unverified Africa-China news leads'
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi

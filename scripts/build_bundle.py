@@ -4,7 +4,7 @@ Safe: only output from local project JSON; never downloads or executes remote co
 """
 import json,pathlib
 ROOT=pathlib.Path(__file__).resolve().parents[1]
-FILES=['worldbank_snapshot','trade','investment','financing','engineering','resources','industry','payments','security','multilateral','society','surveys','external','diplomacy','records']
+FILES=['worldbank_snapshot','trade','investment','financing','engineering','resources','industry','payments','security','multilateral','society','surveys','external','diplomacy','records','news']
 def build():
     result={}
     for name in FILES:
