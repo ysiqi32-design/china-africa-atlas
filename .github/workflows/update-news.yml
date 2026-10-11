@@ -1,5 +1,11 @@
 name: Discover Africa–China news leads
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/update_news_rss.py'
+      - 'tests/test_update_news_rss.py'
+      - '.github/workflows/update-news.yml'
   schedule:
     - cron: '43 5 * * *' # 05:43 UTC daily; source metadata not verified facts
   workflow_dispatch:
