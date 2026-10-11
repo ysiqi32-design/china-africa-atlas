@@ -32,7 +32,7 @@ jobs:
       - name: Discover headlines and links (not verified facts)
         id: discover
         continue-on-error: true
-        run: python scripts/update_news_rss.py --batch-size 4
+        run: python scripts/update_news_rss.py --batch-size 1 --country SEN
       - name: Build static data snapshot
         run: python scripts/build_bundle.py
       - name: Commit news metadata if changed
