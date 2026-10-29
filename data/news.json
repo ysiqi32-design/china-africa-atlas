@@ -4,8 +4,8 @@
   "provider": "AllAfrica country RSS feeds",
   "provider_url": "https://allafrica.com/misc/tools/rss.html",
   "status": "ok",
-  "checked_at_utc": "2026-10-28T11:38:55.252595Z",
-  "last_success_at_utc": "2026-10-28T11:38:55.252595Z",
+  "checked_at_utc": "2026-10-29T11:44:36.702363Z",
+  "last_success_at_utc": "2026-10-29T11:44:36.702363Z",
   "lookback_days": 30,
   "country_status": {
     "AGO": {
@@ -15,18 +15,37 @@
       "stored_records": 0
     },
     "SEN": {
-      "checked_at_utc": "2026-10-28T11:38:55.252595Z",
-      "last_success_at_utc": "2026-10-28T11:38:55.252595Z",
+      "checked_at_utc": "2026-10-29T11:44:36.702363Z",
+      "last_success_at_utc": "2026-10-29T11:44:36.702363Z",
       "status": "ok",
-      "matched_recently": 0,
-      "stored_records": 0,
+      "matched_recently": 1,
+      "stored_records": 1,
       "feeds_succeeded": 2,
       "feeds_expected": 2,
       "error": null
     }
   },
   "countries": {
-    "SEN": []
+    "SEN": [
+      {
+        "id": "03e451f2a00c2a530457",
+        "country": "SEN",
+        "title": "Polémique sur Mao Zedong - La Chine prend acte des excuses de Mbappé",
+        "url": "https://fr.allafrica.com/stories/202610290268.html",
+        "domain": "fr.allafrica.com",
+        "publisher": "",
+        "detected_at_utc": "2026-10-29T10:00:42Z",
+        "first_seen_at_utc": "2026-10-29T11:44:45.002111Z",
+        "language": "fr",
+        "source_index": "AllAfrica RSS",
+        "source_feed": "https://fr.allafrica.com/tools/headlines/rdf/senegal/headlines.rdf",
+        "verification": "unverified_discovery",
+        "relevance": "headline_keyword_match",
+        "modules": [
+          "general"
+        ]
+      }
+    ]
   },
   "errors": {},
   "methodology": "Daily rotating country batches from English and French AllAfrica RSS feeds. Headlines and source links are discovery leads; keyword matches are not verified facts. RSS category coverage can vary by country and publisher.",
