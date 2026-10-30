@@ -4,8 +4,8 @@
   "provider": "AllAfrica country RSS feeds",
   "provider_url": "https://allafrica.com/misc/tools/rss.html",
   "status": "ok",
-  "checked_at_utc": "2026-10-29T11:44:36.702363Z",
-  "last_success_at_utc": "2026-10-29T11:44:36.702363Z",
+  "checked_at_utc": "2026-10-30T11:37:45.592123Z",
+  "last_success_at_utc": "2026-10-30T11:37:45.592123Z",
   "lookback_days": 30,
   "country_status": {
     "AGO": {
@@ -15,11 +15,11 @@
       "stored_records": 0
     },
     "SEN": {
-      "checked_at_utc": "2026-10-29T11:44:36.702363Z",
-      "last_success_at_utc": "2026-10-29T11:44:36.702363Z",
+      "checked_at_utc": "2026-10-30T11:37:45.592123Z",
+      "last_success_at_utc": "2026-10-30T11:37:45.592123Z",
       "status": "ok",
       "matched_recently": 1,
-      "stored_records": 1,
+      "stored_records": 2,
       "feeds_succeeded": 2,
       "feeds_expected": 2,
       "error": null
@@ -27,6 +27,24 @@
   },
   "countries": {
     "SEN": [
+      {
+        "id": "ca2f2601a242d8cdba80",
+        "country": "SEN",
+        "title": "Baseball 5 - Baptême du feu des Lionceaux aux JOJ face à la Chine Taipei, vendredi",
+        "url": "https://fr.allafrica.com/stories/202610290573.html",
+        "domain": "fr.allafrica.com",
+        "publisher": "",
+        "detected_at_utc": "2026-10-29T16:47:19Z",
+        "first_seen_at_utc": "2026-10-30T11:37:54.185466Z",
+        "language": "fr",
+        "source_index": "AllAfrica RSS",
+        "source_feed": "https://fr.allafrica.com/tools/headlines/rdf/senegal/headlines.rdf",
+        "verification": "unverified_discovery",
+        "relevance": "headline_keyword_match",
+        "modules": [
+          "general"
+        ]
+      },
       {
         "id": "03e451f2a00c2a530457",
         "country": "SEN",
