@@ -3,8 +3,8 @@
   "dataset": "africa_china_news_discovery",
   "provider": "AllAfrica country RSS feeds",
   "provider_url": "https://allafrica.com/misc/tools/rss.html",
-  "status": "ok",
-  "checked_at_utc": "2026-11-03T12:59:53.600838Z",
+  "status": "partial",
+  "checked_at_utc": "2026-11-04T13:16:02.705530Z",
   "last_success_at_utc": "2026-11-03T12:59:53.600838Z",
   "lookback_days": 30,
   "country_status": {
@@ -15,14 +15,14 @@
       "stored_records": 0
     },
     "SEN": {
-      "checked_at_utc": "2026-11-03T12:59:53.600838Z",
+      "checked_at_utc": "2026-11-04T13:16:02.705530Z",
       "last_success_at_utc": "2026-11-03T12:59:53.600838Z",
-      "status": "ok",
+      "status": "fetch_failed",
       "matched_recently": 0,
       "stored_records": 2,
       "feeds_succeeded": 2,
       "feeds_expected": 2,
-      "error": null
+      "error": "en: HTTPSConnectionPool(host='allafrica.com', port=443): Max retries exceeded with url: /tools/headlines/rdf/senegal/headlines.rdf (Caused by ConnectTimeoutError(<HTTPSConnection(host=; fr: HTTPSConnectionPool(host='fr.allafrica.com', port=443): Max retries exceeded with url: /tools/headlines/rdf/senegal/headlines.rdf (Caused by ConnectTimeoutError(<HTTPSConnection(ho"
     }
   },
   "countries": {
@@ -65,11 +65,13 @@
       }
     ]
   },
-  "errors": {},
+  "errors": {
+    "SEN": "en: HTTPSConnectionPool(host='allafrica.com', port=443): Max retries exceeded with url: /tools/headlines/rdf/senegal/headlines.rdf (Caused by ConnectTimeoutError(<HTTPSConnection(host=; fr: HTTPSConnectionPool(host='fr.allafrica.com', port=443): Max retries exceeded with url: /tools/headlines/rdf/senegal/headlines.rdf (Caused by ConnectTimeoutError(<HTTPSConnection(ho"
+  },
   "methodology": "Daily rotating country batches from English and French AllAfrica RSS feeds. Headlines and source links are discovery leads; keyword matches are not verified facts. RSS category coverage can vary by country and publisher.",
   "notice": "新闻标题依 AllAfrica RSS 条款标注并链接原文；仅供研究发现，所有线索待核验。各国时间表示最近一次成功读取该国英/法 RSS 分类源。",
   "retention_days": 90,
   "batch_attempted": 1,
-  "batch_success": 1,
+  "batch_success": 0,
   "batch_total": 1
 }
