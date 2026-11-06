@@ -4,8 +4,8 @@
   "provider": "AllAfrica country RSS feeds",
   "provider_url": "https://allafrica.com/misc/tools/rss.html",
   "status": "ok",
-  "checked_at_utc": "2026-11-05T13:29:04.794170Z",
-  "last_success_at_utc": "2026-11-05T13:29:04.794170Z",
+  "checked_at_utc": "2026-11-06T13:14:14.861960Z",
+  "last_success_at_utc": "2026-11-06T13:14:14.861960Z",
   "lookback_days": 30,
   "country_status": {
     "AGO": {
@@ -15,11 +15,11 @@
       "stored_records": 0
     },
     "SEN": {
-      "checked_at_utc": "2026-11-05T13:29:04.794170Z",
-      "last_success_at_utc": "2026-11-05T13:29:04.794170Z",
+      "checked_at_utc": "2026-11-06T13:14:14.861960Z",
+      "last_success_at_utc": "2026-11-06T13:14:14.861960Z",
       "status": "ok",
-      "matched_recently": 0,
-      "stored_records": 2,
+      "matched_recently": 1,
+      "stored_records": 3,
       "feeds_succeeded": 2,
       "feeds_expected": 2,
       "error": null
@@ -27,6 +27,24 @@
   },
   "countries": {
     "SEN": [
+      {
+        "id": "bc90576c5f5fe29219f4",
+        "country": "SEN",
+        "title": "JOJ Dakar 2026 - 165 médailles distribuées, le Japon et la Chine confortent leur domination",
+        "url": "https://fr.allafrica.com/stories/202611060378.html",
+        "domain": "fr.allafrica.com",
+        "publisher": "",
+        "detected_at_utc": "2026-11-06T13:03:18Z",
+        "first_seen_at_utc": "2026-11-06T13:14:23.407516Z",
+        "language": "fr",
+        "source_index": "AllAfrica RSS",
+        "source_feed": "https://fr.allafrica.com/tools/headlines/rdf/senegal/headlines.rdf",
+        "verification": "unverified_discovery",
+        "relevance": "headline_keyword_match",
+        "modules": [
+          "general"
+        ]
+      },
       {
         "id": "ca2f2601a242d8cdba80",
         "country": "SEN",
