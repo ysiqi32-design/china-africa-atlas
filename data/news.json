@@ -4,8 +4,8 @@
   "provider": "AllAfrica country RSS feeds",
   "provider_url": "https://allafrica.com/misc/tools/rss.html",
   "status": "ok",
-  "checked_at_utc": "2026-11-09T14:21:01.779184Z",
-  "last_success_at_utc": "2026-11-09T14:21:01.779184Z",
+  "checked_at_utc": "2026-11-10T13:46:30.098083Z",
+  "last_success_at_utc": "2026-11-10T13:46:30.098083Z",
   "lookback_days": 30,
   "country_status": {
     "AGO": {
@@ -15,8 +15,8 @@
       "stored_records": 0
     },
     "SEN": {
-      "checked_at_utc": "2026-11-09T14:21:01.779184Z",
-      "last_success_at_utc": "2026-11-09T14:21:01.779184Z",
+      "checked_at_utc": "2026-11-10T13:46:30.098083Z",
+      "last_success_at_utc": "2026-11-10T13:46:30.098083Z",
       "status": "ok",
       "matched_recently": 0,
       "stored_records": 3,
